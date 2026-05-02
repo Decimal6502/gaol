@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gaol Tactician</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="./styles/app.css">
@@ -93,6 +93,10 @@
             </div>
             <button class="btn-action btn-secondary" onclick="renderDiagnostics()" data-i18n="common.refresh">更新</button>
         </div>
+        <div class="diagnostics-notice">
+            <strong data-i18n="diagnostics.noticeTitle">外部連携について</strong>
+            <p data-i18n="diagnostics.noticeBody">このアプリは手入力用の外部メモツールです。FFXIクライアント、PlayOnline、Windower、Ashitaとは連携せず、ゲームデータの取得・解析・自動操作は行いません。</p>
+        </div>
         <div id="diagnostics-summary" class="diagnostics-summary"></div>
         <div id="diagnostics-list" class="diagnostics-list"></div>
     </div>
@@ -102,6 +106,11 @@
         <div class="deck-grid" id="deck-grid"></div>
     </div>
     <script src="./src/app.js"></script>
+    <script src="./src/share-view.js"></script>
+    <script src="./src/text-export.js"></script>
+    <script src="./src/image-export.js"></script>
+    <script src="./src/backup.js"></script>
+    <script src="./src/diagnostics.js"></script>
 </body>
 
 </html>

@@ -57,6 +57,15 @@ http://localhost:8000/
 
 For GitHub Pages-style path checks, serve the parent directory and open a `/gaol/` path, or verify after publishing at the public URL.
 
+Run the smoke test:
+
+```bash
+npm install
+npm test
+```
+
+The smoke test serves the app under a local `/gaol/` path and checks page load, CSS/JS loading, clipboard copy, PNG download, JSON export/import, diagnostics text, and 390px mobile width.
+
 ## Disclaimer
 
 This is an unofficial fan-made tool. It is not affiliated with, endorsed by, sponsored by, or approved by SQUARE ENIX.

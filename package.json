@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "smoke": "node tests/smoke.js",
+    "test": "npm run smoke"
+  },
+  "devDependencies": {
+    "playwright": "^1.59.1"
+  }
+}
