@@ -60,12 +60,19 @@
                 <span data-i18n="common.reset">リセット</span></button>
         </div>
 
+        <div class="boss-controls">
+            <div class="boss-control-card"><span class="boss-control-label">1</span><div class="boss-picker"><select class="boss-select" id="boss-1" onchange="saveBoardState()"></select><div class="boss-display" id="boss-1-display"><span class="boss-name-label"></span><span class="boss-weak-label"></span></div></div></div>
+            <div class="boss-control-card"><span class="boss-control-label">2</span><div class="boss-picker"><select class="boss-select" id="boss-2" onchange="saveBoardState()"></select><div class="boss-display" id="boss-2-display"><span class="boss-name-label"></span><span class="boss-weak-label"></span></div></div></div>
+            <div class="boss-control-card"><span class="boss-control-label">3</span><div class="boss-picker"><select class="boss-select" id="boss-3" onchange="saveBoardState()"></select><div class="boss-display" id="boss-3-display"><span class="boss-name-label"></span><span class="boss-weak-label"></span></div></div></div>
+            <div class="boss-control-card bonus-control-card"><span class="boss-control-label" data-i18n="plan.bonusAmp">ボーナス(アンプ)</span><div class="boss-picker"><select class="boss-select" id="boss-bonus" onchange="saveBoardState()"></select><div class="boss-display" id="boss-bonus-display"><span class="boss-name-label"></span><span class="boss-weak-label"></span></div></div></div>
+        </div>
+
         <div class="boss-header">
             <div style="padding-top:5px; font-weight:bold; color:#666;" data-i18n="plan.memberHeader">MEMBER</div>
-            <div class="battle-column-head"><span>1</span><select class="boss-select" id="boss-1" onchange="saveBoardState()"></select><div class="boss-weak-label" id="boss-1-weak"></div></div>
-            <div class="battle-column-head"><span>2</span><select class="boss-select" id="boss-2" onchange="saveBoardState()"></select><div class="boss-weak-label" id="boss-2-weak"></div></div>
-            <div class="battle-column-head"><span>3</span><select class="boss-select" id="boss-3" onchange="saveBoardState()"></select><div class="boss-weak-label" id="boss-3-weak"></div></div>
-            <div class="battle-column-head bonus-column-head"><span data-i18n="plan.bonusAmp">ボーナス(アンプ)</span><select class="boss-select" id="boss-bonus" onchange="saveBoardState()"></select><div class="boss-weak-label" id="boss-bonus-weak"></div></div>
+            <div class="battle-label">1</div>
+            <div class="battle-label">2</div>
+            <div class="battle-label">3</div>
+            <div class="battle-label bonus-battle-label" data-i18n="plan.bonusAmp">ボーナス(アンプ)</div>
         </div>
         <div id="battle-grid"></div>
 

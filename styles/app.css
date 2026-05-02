@@ -359,44 +359,93 @@
             letter-spacing: 0;
         }
 
-        .battle-column-head {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
+        .boss-controls {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 6px;
+            margin: 0 0 8px;
+        }
+
+        .boss-control-card {
             min-width: 0;
         }
 
-        .battle-column-head > span {
-            min-height: 1.1em;
+        .boss-control-label,
+        .battle-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: #495057;
             font-size: 0.72rem;
             font-weight: bold;
             line-height: 1.1;
+            text-align: center;
             overflow-wrap: anywhere;
         }
 
-        .bonus-column-head > span {
+        .bonus-control-card .boss-control-label,
+        .bonus-battle-label {
             color: #0f766e;
         }
 
+        .boss-control-label {
+            min-height: 1.2em;
+            margin-bottom: 3px;
+        }
+
+        .battle-label {
+            min-height: 36px;
+            padding: 0 4px;
+            background: #fff;
+            border: 1px solid #d9dde3;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .boss-picker {
+            position: relative;
+            min-height: 46px;
+        }
+
         .boss-select {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
             width: 100%;
-            min-height: 32px;
-            padding: 4px;
-            font-size: 0.78rem;
+            height: 100%;
+            opacity: 0;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        .boss-display {
+            min-height: 46px;
+            padding: 5px 4px;
             border: 1px solid #b8c0cc;
             border-radius: 8px;
             background: #fff;
             color: #212529;
-            font-weight: bold;
             box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .boss-name-label {
+            max-width: 100%;
+            color: #1f2933;
+            font-size: 0.72rem;
+            font-weight: 800;
+            line-height: 1.05;
+            overflow-wrap: anywhere;
         }
 
         .boss-weak-label {
-            min-height: 1.25em;
-            padding: 2px 3px 0;
+            max-width: 100%;
             color: #5f6b7a;
-            font-size: 0.68rem;
+            font-size: 0.62rem;
             font-weight: 700;
             line-height: 1.15;
             overflow-wrap: anywhere;
@@ -891,8 +940,7 @@
                 padding-top: 5px;
             }
 
-            .boss-header > div:first-child,
-            .boss-select {
+            .boss-header > div:first-child {
                 font-size: 0.66rem;
             }
 
@@ -900,12 +948,23 @@
                 min-height: 42px;
             }
 
-            .boss-select {
-                min-height: 30px;
+            .boss-picker,
+            .boss-display {
+                min-height: 46px;
             }
 
-            .battle-column-head > span {
+            .boss-controls {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 7px;
+            }
+
+            .boss-control-label,
+            .battle-label {
                 font-size: 0.58rem;
+            }
+
+            .boss-name-label {
+                font-size: 0.72rem;
             }
 
             .boss-weak-label {

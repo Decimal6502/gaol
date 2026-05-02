@@ -115,6 +115,7 @@ function assert(condition, message) {
         assert(await page.title() === 'Gaol Tactician', 'Page title did not load');
         assert(await page.locator('button.btn-copy-text').count() === 1, 'App JS did not initialize expected controls');
         assert(await page.locator('.tabs').evaluate(element => getComputedStyle(element).position) === 'sticky', 'CSS did not apply');
+        assert(await page.locator('.boss-controls .boss-display').count() === 4, 'Boss controls did not render as display cards');
         assert(!page.url().includes('/ffxi/'), 'Navigated to old /ffxi/ path');
 
         await page.evaluate(fixture => localStorage.setItem('gt_app_data_v2', JSON.stringify(fixture)), completeFixture());

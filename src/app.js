@@ -908,10 +908,11 @@ function autoFillBoard() {
 
 function updateBossWeakLabels() {
     document.querySelectorAll('.boss-select').forEach(select => {
-        const label = document.getElementById(`${select.id}-weak`);
-        if (!label) return;
+        const display = document.getElementById(`${select.id}-display`);
+        if (!display) return;
         const boss = getBossById(select.value || null);
-        label.textContent = bossWeak(boss);
+        display.querySelector('.boss-name-label').textContent = boss?.name || '---';
+        display.querySelector('.boss-weak-label').textContent = bossWeak(boss);
     });
 }
 
