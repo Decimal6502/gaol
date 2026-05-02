@@ -229,19 +229,40 @@
 
         .availability-legend {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-            margin: 0 0 12px;
-            font-size: 0.8rem;
+            grid-template-columns: 1fr;
+            gap: 7px;
+            margin: 0 0 14px;
             color: #444;
         }
 
-        .availability-legend span {
+        .legend-item {
+            display: grid;
+            grid-template-columns: 28px minmax(82px, auto) minmax(0, 1fr);
+            gap: 8px;
+            align-items: center;
             background: #fff;
             border: 1px solid var(--border);
             border-radius: 6px;
-            padding: 8px 6px;
+            padding: 8px 10px;
+        }
+
+        .legend-mark {
             text-align: center;
+            font-size: 1.05rem;
+            line-height: 1;
+        }
+
+        .legend-label {
+            color: #222;
+            font-size: 0.86rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .legend-description {
+            color: #555;
+            font-size: 0.78rem;
+            line-height: 1.35;
         }
 
         .mark-main,
@@ -876,8 +897,18 @@
                 padding: 10px;
             }
 
-            .availability-legend {
-                grid-template-columns: repeat(2, 1fr);
+            .legend-item {
+                grid-template-columns: 24px minmax(74px, auto) minmax(0, 1fr);
+                gap: 6px;
+                padding: 8px;
+            }
+
+            .legend-label {
+                font-size: 0.82rem;
+            }
+
+            .legend-description {
+                font-size: 0.74rem;
             }
 
             .availability-grid {

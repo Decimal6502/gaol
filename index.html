@@ -27,13 +27,29 @@
             </select>
         </label>
         <div class="availability-legend">
-            <span><strong class="mark-main">★</strong> <span data-i18n="availability.main">上級マスター</span></span>
-            <span><strong class="mark-ok">☆</strong> <span data-i18n="availability.ok">初級マスター</span></span>
-            <span><strong class="mark-fill">○</strong> <span data-i18n="availability.fill">Lv99</span></span>
-            <span><strong class="mark-none">-</strong> <span data-i18n="availability.ng">不可</span></span>
+            <div class="legend-item">
+                <strong class="legend-mark mark-main">★</strong>
+                <span class="legend-label" data-i18n="availability.main">上級マスター</span>
+                <span class="legend-description" data-i18n="availability.mainDescription">パーティの核となるメイン戦力</span>
+            </div>
+            <div class="legend-item">
+                <strong class="legend-mark mark-ok">☆</strong>
+                <span class="legend-label" data-i18n="availability.ok">初級マスター</span>
+                <span class="legend-description" data-i18n="availability.okDescription">状況に応じて活躍できるサブ戦力</span>
+            </div>
+            <div class="legend-item">
+                <strong class="legend-mark mark-fill">○</strong>
+                <span class="legend-label" data-i18n="availability.fill">Lv99</span>
+                <span class="legend-description" data-i18n="availability.fillDescription">数合わせ要員ジョブ</span>
+            </div>
+            <div class="legend-item">
+                <strong class="legend-mark mark-none">-</strong>
+                <span class="legend-label" data-i18n="availability.ng">不可</span>
+                <span class="legend-description" data-i18n="availability.ngDescription">出場不可(Lv99未満)</span>
+            </div>
         </div>
         <div id="settings-list"></div>
-        <button class="btn-action btn-add" onclick="addMemberRow()"><span aria-hidden="true">＋</span> <span data-i18n="members.addDisplayName">表示名を追加</span></button>
+        <button class="btn-action btn-add" onclick="addMemberRow()" data-i18n="members.addDisplayName">メンバーを追加</button>
     </div>
 
     <div id="board" class="content active">
