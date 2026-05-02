@@ -607,6 +607,7 @@ function updateDeckMessage() {
 
 function saveBoardState() {
     saveAppData();
+    updateBossWeakLabels();
     updateSharePreview();
 }
 
@@ -674,11 +675,11 @@ function initBoardUI() {
     const selects = document.querySelectorAll('.boss-select');
     selects.forEach((select, index) => {
         select.innerHTML = BOSS_DATA.map(boss => {
-            const weak = bossWeak(boss);
-            return `<option value="${boss.id || ''}">${boss.name}${weak ? ` (${weak})` : ''}</option>`;
+            return `<option value="${boss.id || ''}">${escapeAttr(boss.name)}</option>`;
         }).join('');
         select.value = index < MAIN_FIGHT_COUNT ? plan.fights[index].bossId || '' : plan.bonusBattle.bossId || '';
     });
+    updateBossWeakLabels();
 
     const grid = document.getElementById('battle-grid');
     grid.innerHTML = '';
@@ -903,6 +904,15 @@ function autoFillBoard() {
     });
     saveBoardState();
     refreshBoard();
+}
+
+function updateBossWeakLabels() {
+    document.querySelectorAll('.boss-select').forEach(select => {
+        const label = document.getElementById(`${select.id}-weak`);
+        if (!label) return;
+        const boss = getBossById(select.value || null);
+        label.textContent = bossWeak(boss);
+    });
 }
 
 function resetBoardJobs() {

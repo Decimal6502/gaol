@@ -372,9 +372,7 @@
             font-size: 0.72rem;
             font-weight: bold;
             line-height: 1.1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            overflow-wrap: anywhere;
         }
 
         .bonus-column-head > span {
@@ -383,8 +381,8 @@
 
         .boss-select {
             width: 100%;
-            min-height: 36px;
-            padding: 5px 4px;
+            min-height: 32px;
+            padding: 4px;
             font-size: 0.78rem;
             border: 1px solid #b8c0cc;
             border-radius: 8px;
@@ -392,6 +390,16 @@
             color: #212529;
             font-weight: bold;
             box-sizing: border-box;
+        }
+
+        .boss-weak-label {
+            min-height: 1.25em;
+            padding: 2px 3px 0;
+            color: #5f6b7a;
+            font-size: 0.68rem;
+            font-weight: 700;
+            line-height: 1.15;
+            overflow-wrap: anywhere;
         }
 
         .grid-row {
@@ -885,12 +893,24 @@
 
             .boss-header > div:first-child,
             .boss-select {
-                min-height: 34px;
                 font-size: 0.66rem;
+            }
+
+            .boss-header > div:first-child {
+                min-height: 42px;
+            }
+
+            .boss-select {
+                min-height: 30px;
             }
 
             .battle-column-head > span {
                 font-size: 0.58rem;
+            }
+
+            .boss-weak-label {
+                font-size: 0.58rem;
+                line-height: 1.12;
             }
 
             .member-row {
