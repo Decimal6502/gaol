@@ -27,7 +27,7 @@ function importJsonBackup(event) {
             appData = normalizeAppData(JSON.parse(reader.result));
             members = appData.members;
             hydrateWorkingStateFromPlan();
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+            writeStoredAppData();
             applyStaticTranslations();
             initShareControls();
             initBoardUI();

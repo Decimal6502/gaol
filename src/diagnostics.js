@@ -174,20 +174,41 @@ function renderDiagnostics() {
         return acc;
     }, { ok: 0, warn: 0, error: 0 });
 
-    summary.innerHTML = `
-        <div class="summary-card status-ok"><strong>${counts.ok || 0}</strong><span>OK</span></div>
-        <div class="summary-card status-warn"><strong>${counts.warn || 0}</strong><span>${escapeAttr(t('common.statusWarn'))}</span></div>
-        <div class="summary-card status-error"><strong>${counts.error || 0}</strong><span>${escapeAttr(t('common.statusError'))}</span></div>
-    `;
+    summary.replaceChildren(
+        createSummaryCard('ok', counts.ok || 0, 'OK'),
+        createSummaryCard('warn', counts.warn || 0, t('common.statusWarn')),
+        createSummaryCard('error', counts.error || 0, t('common.statusError'))
+    );
 
-    list.innerHTML = diagnostics.map(item => `
-        <div class="diagnostic-item status-${item.status}">
-            <div class="diagnostic-title">
-                <span>${escapeAttr(item.title)}</span>
-                <strong>${statusLabel(item.status)}</strong>
-            </div>
-            <p>${escapeAttr(item.detail)}</p>
-        </div>
-    `).join('');
+    list.replaceChildren(...diagnostics.map(createDiagnosticItem));
+}
+
+function createSummaryCard(status, count, label) {
+    const card = document.createElement('div');
+    card.className = `summary-card status-${status}`;
+    const countElement = document.createElement('strong');
+    countElement.textContent = String(count);
+    const labelElement = document.createElement('span');
+    labelElement.textContent = label;
+    card.append(countElement, labelElement);
+    return card;
+}
+
+function createDiagnosticItem(item) {
+    const row = document.createElement('div');
+    row.className = `diagnostic-item status-${item.status}`;
+
+    const title = document.createElement('div');
+    title.className = 'diagnostic-title';
+    const titleText = document.createElement('span');
+    titleText.textContent = item.title;
+    const status = document.createElement('strong');
+    status.textContent = statusLabel(item.status);
+    title.append(titleText, status);
+
+    const detail = document.createElement('p');
+    detail.textContent = item.detail;
+    row.append(title, detail);
+    return row;
 }
 

@@ -403,21 +403,34 @@ function normalizeBattle(battle, fallbackBossId) {
     battle.slots = battle.slots.slice(0, 6);
 }
 
-function loadAppData() {
+function readStoredAppData() {
     try {
-        appData = normalizeAppData(JSON.parse(localStorage.getItem(STORAGE_KEY)));
+        return JSON.parse(localStorage.getItem(STORAGE_KEY));
     } catch {
-        appData = createDefaultAppData();
+        return null;
     }
+}
+
+function writeStoredAppData() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function loadAppData() {
+    appData = normalizeAppData(readStoredAppData());
     members = appData.members;
     hydrateWorkingStateFromPlan();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+    writeStoredAppData();
 }
 
 function saveAppData() {
     syncWorkingStateToPlan();
     members = appData.members;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+    writeStoredAppData();
 }
 
 function getCurrentPlan() {
@@ -499,11 +512,20 @@ function availabilityLabel(member, jobId) {
     return AVAILABILITY_LABELS[member?.jobs[jobId] || 'ng'];
 }
 
-function formatPreviewJobGroup(member, availability, className, label) {
+function appendPreviewJobGroup(container, member, availability, className, label) {
     const jobIds = jobsByAvailability(member, availability);
-    if (jobIds.length === 0) return '';
-    const jobs = jobIds.map(jobId => `<span>${jobShort(jobId)}</span>`).join('');
-    return `<span class="job-preview-group ${className}"><strong>${label}</strong>${jobs}</span>`;
+    if (jobIds.length === 0) return;
+    const group = document.createElement('span');
+    group.className = `job-preview-group ${className}`;
+    const groupLabel = document.createElement('strong');
+    groupLabel.textContent = label;
+    group.appendChild(groupLabel);
+    jobIds.forEach(jobId => {
+        const job = document.createElement('span');
+        job.textContent = jobShort(jobId);
+        group.appendChild(job);
+    });
+    container.appendChild(group);
 }
 
 function cycleAvailability(memberIndex, jobId) {
@@ -529,10 +551,6 @@ function clearInvalidJobsForMember(memberId) {
             }
         }
     }
-}
-
-function escapeAttr(value) {
-    return String(value || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function interpolate(template, values = {}) {
@@ -649,7 +667,7 @@ function saveSettingsFromDOM() {
 
 function renderSettingsList() {
     const container = document.getElementById('settings-list');
-    container.innerHTML = '';
+    container.replaceChildren();
     members.forEach((member, index) => {
         const div = document.createElement('div');
         div.className = 'member-row';
@@ -728,15 +746,19 @@ function initBoardUI() {
     const plan = getCurrentPlan();
     const selects = document.querySelectorAll('.boss-select');
     selects.forEach((select, index) => {
-        select.innerHTML = BOSS_DATA.map(boss => {
-            return `<option value="${boss.id || ''}">${escapeAttr(boss.name)}</option>`;
-        }).join('');
+        select.replaceChildren();
+        BOSS_DATA.forEach(boss => {
+            const option = document.createElement('option');
+            option.value = boss.id || '';
+            option.textContent = boss.name;
+            select.appendChild(option);
+        });
         select.value = index < MAIN_FIGHT_COUNT ? plan.fights[index].bossId || '' : plan.bonusBattle.bossId || '';
     });
     updateBossWeakLabels();
 
     const grid = document.getElementById('battle-grid');
-    grid.innerHTML = '';
+    grid.replaceChildren();
     for (let row = 0; row < 6; row++) {
         const rowDiv = document.createElement('div');
         rowDiv.className = 'grid-row';
@@ -800,13 +822,11 @@ function refreshBoard() {
 
         const previewDiv = document.getElementById(`player-jobs-${row}`);
         const member = getMemberById(currentMemberId);
+        previewDiv.replaceChildren();
         if (member) {
-            const mainJobs = formatPreviewJobGroup(member, 'main', 'job-star', '★');
-            const okJobs = formatPreviewJobGroup(member, 'ok', 'job-norm', '☆');
-            const fillJobs = formatPreviewJobGroup(member, 'fill', 'job-fill', '○');
-            previewDiv.innerHTML = `${mainJobs}${okJobs}${fillJobs}`;
-        } else {
-            previewDiv.textContent = '';
+            appendPreviewJobGroup(previewDiv, member, 'main', 'job-star', '★');
+            appendPreviewJobGroup(previewDiv, member, 'ok', 'job-norm', '☆');
+            appendPreviewJobGroup(previewDiv, member, 'fill', 'job-fill', '○');
         }
     });
 
@@ -821,11 +841,17 @@ function refreshBoard() {
         for (let col = 0; col < TOTAL_BATTLE_COUNT; col++) {
             const slot = document.getElementById(`slot-${row}-${col}`);
             const currentJob = boardState[row][col];
-            slot.innerHTML = currentJob ? jobShort(currentJob) : '';
+            slot.replaceChildren();
             slot.className = col === BONUS_COL ? 'job-slot bonus-slot' : 'job-slot';
             if (currentJob) {
+                slot.append(document.createTextNode(jobShort(currentJob)));
                 slot.classList.add('has-job');
-                if (member) slot.innerHTML += `<span class="slot-mark-master">${availabilityLabel(member, currentJob)}</span>`;
+                if (member) {
+                    const mark = document.createElement('span');
+                    mark.className = 'slot-mark-master';
+                    mark.textContent = availabilityLabel(member, currentJob);
+                    slot.appendChild(mark);
+                }
             }
             if (!member) {
                 slot.classList.add('disabled');
@@ -854,7 +880,7 @@ function refreshBoard() {
 
 function renderDeck(usedJobs = new Set()) {
     const container = document.getElementById('deck-grid');
-    container.innerHTML = '';
+    container.replaceChildren();
     JOBS.forEach(job => {
         const button = document.createElement('div');
         button.className = 'job-chip';

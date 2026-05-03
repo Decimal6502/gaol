@@ -92,6 +92,19 @@ function assert(condition, message) {
     if (!condition) throw new Error(message);
 }
 
+async function loadFixture(page, mutate = () => {}) {
+    const fixture = completeFixture();
+    mutate(fixture);
+    await page.evaluate(data => localStorage.setItem('gt_app_data_v2', JSON.stringify(data)), fixture);
+    await page.reload({ waitUntil: 'networkidle' });
+}
+
+async function readDiagnostics(page) {
+    await page.click('text=診断');
+    await page.waitForTimeout(300);
+    return page.locator('#diagnostics').innerText();
+}
+
 (async () => {
     const server = targetUrl ? null : createStaticServer();
     const port = server ? await listen(server) : null;
@@ -116,10 +129,11 @@ function assert(condition, message) {
         assert(await page.locator('button.btn-copy-text').count() === 1, 'App JS did not initialize expected controls');
         assert(await page.locator('.tabs').evaluate(element => getComputedStyle(element).position) === 'sticky', 'CSS did not apply');
         assert(await page.locator('.boss-controls .boss-display').count() === 4, 'Boss controls did not render as display cards');
+        assert(await page.locator('.quick-guide').isVisible(), 'Quick guide is not visible on the plan page');
+        assert((await page.locator('.quick-guide').innerText()).includes('使い方'), 'Quick guide text is missing');
         assert(!page.url().includes('/ffxi/'), 'Navigated to old /ffxi/ path');
 
-        await page.evaluate(fixture => localStorage.setItem('gt_app_data_v2', JSON.stringify(fixture)), completeFixture());
-        await page.reload({ waitUntil: 'networkidle' });
+        await loadFixture(page);
 
         await page.click('button.btn-copy-text');
         const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
@@ -140,22 +154,47 @@ function assert(condition, message) {
         assert(exportedJson.version === 2, 'JSON export did not include version 2 data');
 
         const importPath = path.join(os.tmpdir(), 'gaol-smoke-import.json');
-        exportedJson.members[0].displayName = '"><img src=x onerror="window.__gaolXss=1">ImportCheck';
+        exportedJson.members[0].displayName = `A & B "quote" 'single' <img src=x onerror="window.__gaolXss=1"> ImportCheck`;
         fs.writeFileSync(importPath, JSON.stringify(exportedJson, null, 2));
         page.once('dialog', dialog => dialog.accept());
         await page.setInputFiles('#json-import-input', importPath);
         await page.waitForTimeout(300);
         await page.click('text=メンバー');
-        assert((await page.locator('#name-0').inputValue()).includes('ImportCheck'), 'JSON import did not update display names');
+        const importedName = await page.locator('#name-0').inputValue();
+        assert(importedName.includes('A & B "quote"') && importedName.includes("'single'") && importedName.includes('ImportCheck'), 'JSON import did not preserve special display-name characters');
         await page.click('text=編成');
         assert(await page.locator('img').count() === 0, 'Display name was parsed as HTML');
         assert(await page.evaluate(() => window.__gaolXss !== 1), 'Display name script payload executed');
+        await page.check('#share-name-toggle');
+        const shareTextWithNames = await page.locator('#share-text-preview').inputValue();
+        assert(shareTextWithNames.includes(importedName), 'Display-name text preview did not preserve special characters');
+        assert(await page.locator('img').count() === 0, 'Display-name preview created HTML elements');
+        await page.uncheck('#share-name-toggle');
 
-        await page.click('text=診断');
-        await page.waitForTimeout(300);
-        const diagnostics = await page.locator('#diagnostics').innerText();
+        const diagnostics = await readDiagnostics(page);
         assert(diagnostics.includes('このアプリは手入力用の外部メモツールです。'), 'Japanese external-tool notice is missing');
-        assert(diagnostics.includes('13') && diagnostics.includes('OK'), 'Diagnostics did not report completed OK state');
+        assert(diagnostics.includes('共有/バックアップ機能') && diagnostics.includes('OK'), 'Diagnostics did not report completed OK state');
+        assert(diagnostics.includes('3戦側とボーナス戦内に重複使用はありません。'), 'Main-vs-bonus job reuse should not be reported as duplicate');
+
+        await loadFixture(page, fixture => {
+            fixture.plans[0].fights[1].slots[0].jobId = 'WAR';
+        });
+        const mainDuplicateDiagnostics = await readDiagnostics(page);
+        assert(mainDuplicateDiagnostics.includes('1 種類のジョブ') && mainDuplicateDiagnostics.includes('要修正'), 'Main-fight duplicate job was not reported');
+
+        await loadFixture(page, fixture => {
+            fixture.plans[0].bonusBattle.slots[1].jobId = 'WAR';
+        });
+        const bonusDuplicateDiagnostics = await readDiagnostics(page);
+        assert(bonusDuplicateDiagnostics.includes('1 種類のジョブ') && bonusDuplicateDiagnostics.includes('要修正'), 'Bonus-fight duplicate job was not reported');
+
+        await loadFixture(page, fixture => {
+            fixture.settings.shareNameMode = 'display';
+        });
+        const displayNameDiagnostics = await readDiagnostics(page);
+        assert(displayNameDiagnostics.includes('表示名を出す設定です') && displayNameDiagnostics.includes('要確認'), 'Display-name sharing warning was not reported');
+
+        await loadFixture(page);
 
         await page.evaluate(() => {
             const stored = JSON.parse(localStorage.getItem('gt_app_data_v2'));
@@ -170,6 +209,25 @@ function assert(condition, message) {
         assert(!overflow, '390px viewport has horizontal overflow');
         assert(errors.length === 0, `Console errors/warnings found:\n${errors.join('\n')}`);
         assert(failedRequests.length === 0, `Failed requests found:\n${failedRequests.join('\n')}`);
+
+        const blockedContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
+        await blockedContext.addInitScript(() => {
+            const blocked = () => { throw new DOMException('localStorage blocked', 'SecurityError'); };
+            Storage.prototype.getItem = blocked;
+            Storage.prototype.setItem = blocked;
+            Storage.prototype.removeItem = blocked;
+        });
+        const blockedPage = await blockedContext.newPage();
+        const blockedErrors = [];
+        blockedPage.on('pageerror', error => blockedErrors.push(error.message));
+        await blockedPage.goto(url, { waitUntil: 'networkidle' });
+        assert(await blockedPage.title() === 'Gaol Tactician', 'App did not load when localStorage was unavailable');
+        await blockedPage.locator('.tab').nth(2).click();
+        const blockedDiagnostics = await blockedPage.locator('#diagnostics').innerText();
+        assert(blockedDiagnostics.includes('localStorage'), 'Blocked localStorage diagnostic is missing');
+        assert(blockedDiagnostics.includes('保存できません') || blockedDiagnostics.includes('not available'), 'Blocked localStorage state was not reported');
+        assert(blockedErrors.length === 0, `Blocked-storage page errors found:\n${blockedErrors.join('\n')}`);
+        await blockedContext.close();
 
         console.log(`Smoke OK: ${url}`);
     } finally {
