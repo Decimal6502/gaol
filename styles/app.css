@@ -69,7 +69,54 @@
             padding-bottom: 18px;
         }
 
-        #board > div:first-child {
+        .quick-guide {
+            margin: 0 0 10px;
+            padding: 10px 12px;
+            border: 1px solid #cfd6e0;
+            border-radius: 8px;
+            background: #fff;
+            color: #344054;
+        }
+
+        .quick-guide summary {
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 0.95rem;
+        }
+
+        .quick-guide ol {
+            margin: 8px 0 0 20px;
+            padding: 0;
+            font-size: 0.84rem;
+            line-height: 1.45;
+        }
+
+        .quick-guide li {
+            margin: 3px 0;
+        }
+
+        .help-note,
+        .rule-note {
+            margin: 0 0 12px;
+            color: #3f4b5c;
+            font-size: 0.84rem;
+            line-height: 1.45;
+        }
+
+        .rule-note {
+            padding: 9px 10px;
+            border: 1px solid #b7d8cb;
+            border-left: 5px solid #0f766e;
+            border-radius: 8px;
+            background: #f3fbf7;
+        }
+
+        .board-help {
+            margin-top: -4px;
+            margin-bottom: 10px;
+        }
+
+        #board > .board-actions {
             position: sticky;
             top: 48px;
             z-index: 920;
@@ -81,7 +128,7 @@
             background: var(--bg);
         }
 
-        #board > div:first-child .btn-action {
+        #board > .board-actions .btn-action {
             min-height: 42px;
             border-radius: 8px;
             font-weight: bold;
@@ -89,7 +136,7 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.14);
         }
 
-        #board > div:first-child .btn-action[style*="width:80px"] {
+        #board > .board-actions .btn-action[style*="width:80px"] {
             width: 94px !important;
             padding-inline: 6px;
             white-space: nowrap;
@@ -921,17 +968,17 @@
                 gap: 4px;
             }
 
-            #board > div:first-child {
+            #board > .board-actions {
                 top: 44px;
                 gap: 6px !important;
             }
 
-            #board > div:first-child .btn-action {
+            #board > .board-actions .btn-action {
                 min-height: 40px;
                 font-size: 0.86rem;
             }
 
-            #board > div:first-child .btn-action[style*="width:80px"] {
+            #board > .board-actions .btn-action[style*="width:80px"] {
                 width: 94px !important;
             }
 

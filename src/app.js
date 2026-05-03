@@ -81,10 +81,18 @@ const LOCALES = {
         'availability.okDescription': '状況に応じて活躍できるサブ戦力',
         'availability.fillDescription': '数合わせ要員ジョブ',
         'availability.ngDescription': '出場不可(Lv99未満)',
+        'availability.cycleHelp': 'ジョブ名をタップすると、不可 → ★ → ☆ → ○ → 不可 の順に切り替わります。',
+        'guide.title': '使い方',
+        'guide.stepMembers': 'メンバータブで6人分の表示名を登録',
+        'guide.stepJobs': '各メンバーの使用可能ジョブを ★ / ☆ / ○ で設定',
+        'guide.stepPlan': '編成タブで3戦＋ボーナス戦のジョブを配置',
+        'guide.stepShare': '共有プレビューからテキスト・PNGを保存',
         'plan.autoFill': '残りを適当に埋める',
+        'plan.autoFillHelp': '空き枠を、使用可能ジョブの少ないメンバーから順に簡易補完します。ボス相性や戦術の最適化は行いません。',
         'plan.memberHeader': 'MEMBER',
         'plan.bonusAmp': 'ボーナス(アンプ)',
         'plan.bonusAmpText': 'ボーナス(アンプ)',
+        'plan.bonusRule': 'ボーナス戦は3戦側とは別枠です。3戦側で使ったジョブも再利用できます。ただし、ボーナス戦内でのジョブ重複は警告します。',
         'common.reset': 'リセット',
         'common.delete': '削除',
         'common.refresh': '更新',
@@ -178,10 +186,18 @@ const LOCALES = {
         'availability.okDescription': 'Secondary job that can work in the right situation',
         'availability.fillDescription': 'Fill-in job for roster coverage',
         'availability.ngDescription': 'Cannot join (below Lv. 99)',
+        'availability.cycleHelp': 'Tap a job to cycle Unavailable → ★ → ☆ → ○ → Unavailable.',
+        'guide.title': 'How to use',
+        'guide.stepMembers': 'Add 6 display names on the Members tab.',
+        'guide.stepJobs': 'Mark usable jobs for each display name with ★ / ☆ / ○.',
+        'guide.stepPlan': 'Place jobs for the 3 fights plus the bonus fight on the Plan tab.',
+        'guide.stepShare': 'Save text or PNG from the share preview.',
         'plan.autoFill': 'Fill Empty Slots',
+        'plan.autoFillHelp': 'Simple fill assigns empty slots from members with fewer usable jobs first. It does not optimize boss matchups or strategy.',
         'plan.memberHeader': 'MEMBER',
         'plan.bonusAmp': 'Bonus (Amplifier)',
         'plan.bonusAmpText': 'Bonus (Amplifier)',
+        'plan.bonusRule': 'The bonus fight is separate from the 3 main fights. Jobs used in the 3 fights can be reused there, but duplicates within the bonus fight are warned.',
         'common.reset': 'Reset',
         'common.delete': 'Delete',
         'common.refresh': 'Refresh',
@@ -637,11 +653,49 @@ function renderSettingsList() {
     members.forEach((member, index) => {
         const div = document.createElement('div');
         div.className = 'member-row';
-        const jobCells = JOBS.map(job => {
+
+        const header = document.createElement('div');
+        header.className = 'member-row-header';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = member.displayName;
+        input.id = `name-${index}`;
+        input.placeholder = t('form.displayName');
+        input.maxLength = 15;
+        input.onchange = saveSettingsFromDOM;
+        header.appendChild(input);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'btn-action del-row';
+        deleteButton.textContent = t('common.delete');
+        deleteButton.onclick = () => deleteMember(index);
+        header.appendChild(deleteButton);
+        div.appendChild(header);
+
+        const availabilityGrid = document.createElement('div');
+        availabilityGrid.className = 'availability-grid';
+        JOBS.forEach(job => {
             const availability = member.jobs[job.id] || 'ng';
-            return `<button type="button" class="availability-cell availability-${availability}" onclick="cycleAvailability(${index}, '${job.id}')" aria-label="${jobName(job.id)} ${AVAILABILITY_LABELS[availability]}"><span class="availability-job">${jobShort(job.id)}</span><span class="availability-mark">${AVAILABILITY_LABELS[availability]}</span></button>`;
-        }).join('');
-        div.innerHTML = `<div class="member-row-header"><input type="text" value="${escapeAttr(member.displayName)}" id="name-${index}" placeholder="${escapeAttr(t('form.displayName'))}" maxlength="15" onchange="saveSettingsFromDOM()"><button class="btn-action del-row" onclick="deleteMember(${index})">${escapeAttr(t('common.delete'))}</button></div><div class="availability-grid">${jobCells}</div>`;
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = `availability-cell availability-${availability}`;
+            button.setAttribute('aria-label', `${jobName(job.id)} ${AVAILABILITY_LABELS[availability]}`);
+            button.onclick = () => cycleAvailability(index, job.id);
+
+            const jobLabel = document.createElement('span');
+            jobLabel.className = 'availability-job';
+            jobLabel.textContent = jobShort(job.id);
+            button.appendChild(jobLabel);
+
+            const markLabel = document.createElement('span');
+            markLabel.className = 'availability-mark';
+            markLabel.textContent = AVAILABILITY_LABELS[availability];
+            button.appendChild(markLabel);
+            availabilityGrid.appendChild(button);
+        });
+        div.appendChild(availabilityGrid);
         container.appendChild(div);
     });
 }
@@ -725,14 +779,23 @@ function refreshBoard() {
     selects.forEach((select, row) => {
         if (selectedMemberIds[row] && !getMemberById(selectedMemberIds[row])) selectedMemberIds[row] = null;
         const currentMemberId = selectedMemberIds[row];
-        let html = `<option value="" ${currentMemberId ? '' : 'selected'}>${escapeAttr(t('form.select'))}</option>`;
+        select.replaceChildren();
+        const emptyOption = document.createElement('option');
+        emptyOption.value = '';
+        emptyOption.textContent = t('form.select');
+        emptyOption.selected = !currentMemberId;
+        select.appendChild(emptyOption);
         members.forEach(member => {
             const isSelectedElsewhere = selectedMemberIds.some((memberId, rowIndex) => rowIndex !== row && memberId === member.id);
-            const disabledAttr = isSelectedElsewhere ? 'disabled style="color:#ccc"' : '';
             const nameLabel = `${member.displayName}${isSelectedElsewhere ? ` (${t('form.selected')})` : ''}`;
-            html += `<option value="${member.id}" ${member.id === currentMemberId ? 'selected' : ''} ${disabledAttr}>${escapeAttr(nameLabel)}</option>`;
+            const option = document.createElement('option');
+            option.value = member.id;
+            option.textContent = nameLabel;
+            option.selected = member.id === currentMemberId;
+            option.disabled = isSelectedElsewhere;
+            if (isSelectedElsewhere) option.style.color = '#ccc';
+            select.appendChild(option);
         });
-        select.innerHTML = html;
         select.value = currentMemberId || '';
 
         const previewDiv = document.getElementById(`player-jobs-${row}`);

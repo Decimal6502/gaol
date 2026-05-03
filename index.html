@@ -48,17 +48,29 @@
                 <span class="legend-description" data-i18n="availability.ngDescription">出場不可(Lv99未満)</span>
             </div>
         </div>
+        <p class="help-note" data-i18n="availability.cycleHelp">ジョブ名をタップすると、不可 → ★ → ☆ → ○ → 不可 の順に切り替わります。</p>
         <div id="settings-list"></div>
         <button class="btn-action btn-add" onclick="addMemberRow()" data-i18n="members.addDisplayName">メンバーを追加</button>
     </div>
 
     <div id="board" class="content active">
-        <div style="display:flex; gap:10px; margin-bottom:15px;">
+        <details class="quick-guide" open>
+            <summary data-i18n="guide.title">使い方</summary>
+            <ol>
+                <li data-i18n="guide.stepMembers">メンバータブで6人分の表示名を登録</li>
+                <li data-i18n="guide.stepJobs">各メンバーの使用可能ジョブを ★ / ☆ / ○ で設定</li>
+                <li data-i18n="guide.stepPlan">編成タブで3戦＋ボーナス戦のジョブを配置</li>
+                <li data-i18n="guide.stepShare">共有プレビューからテキスト・PNGを保存</li>
+            </ol>
+        </details>
+        <p class="rule-note" data-i18n="plan.bonusRule">ボーナス戦は3戦側とは別枠です。3戦側で使ったジョブも再利用できます。ただし、ボーナス戦内でのジョブ重複は警告します。</p>
+        <div class="board-actions" style="display:flex; gap:10px; margin-bottom:15px;">
             <button class="btn-action btn-auto" style="flex:1; margin-bottom:0;" onclick="autoFillBoard()">🎲
                 <span data-i18n="plan.autoFill">残りを適当に埋める</span></button>
             <button class="btn-action" style="background:var(--danger); width:80px;" onclick="resetBoardJobs()">🗑️
                 <span data-i18n="common.reset">リセット</span></button>
         </div>
+        <p class="help-note board-help" data-i18n="plan.autoFillHelp">空き枠を、使用可能ジョブの少ないメンバーから順に簡易補完します。ボス相性や戦術の最適化は行いません。</p>
 
         <div class="boss-controls">
             <div class="boss-control-card"><span class="boss-control-label">1</span><div class="boss-picker"><select class="boss-select" id="boss-1" onchange="saveBoardState()"></select><div class="boss-display" id="boss-1-display"><span class="boss-name-label"></span><span class="boss-weak-label"></span></div></div></div>

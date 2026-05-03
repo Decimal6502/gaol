@@ -2,6 +2,18 @@
 
 Gaol Tactician is an unofficial fan-made, mobile-first static web app for planning FFXI Odyssey Gaol 3-battle job assignments.
 
+## 概要
+
+Gaol Tactician は、FFXI のシェオル ジェール向けに、3連戦とボーナス戦のジョブ編成を手入力で整理する非公式メモツールです。
+
+- メンバーごとの使用可能ジョブを ★ / ☆ / ○ / - で管理
+- 3連戦側のジョブ重複をチェック
+- 4戦目相当のボーナス戦メモ欄を用意
+- テキスト・PNG・JSONで保存可能
+- すべてブラウザ内で動作し、ゲームクライアントとは連携しません
+
+![Gaol Tactician screenshot](./assets/images/app-screenshot.png)
+
 Public URL:
 
 ```text
@@ -26,6 +38,12 @@ https://decimal6502.github.io/gaol/
 3. Mark job availability for each display name.
 4. Select display names and jobs on the planning board.
 5. Use the sharing panel to copy text, download PNG, or export/import JSON backup.
+
+Tap a job in the Members tab to cycle `Unavailable -> ★ -> ☆ -> ○ -> Unavailable`.
+
+The bonus fight is separate from the 3 main fights. Jobs used in the 3 fights can be reused there, but duplicates within the bonus fight are warned.
+
+The fill button is a simple helper: it fills empty main-fight slots from members with fewer usable jobs first. It does not optimize boss matchups or strategy.
 
 Text and PNG exports use anonymous labels by default. Enable display names only when you intentionally want them included.
 

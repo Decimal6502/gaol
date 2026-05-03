@@ -140,13 +140,16 @@ function assert(condition, message) {
         assert(exportedJson.version === 2, 'JSON export did not include version 2 data');
 
         const importPath = path.join(os.tmpdir(), 'gaol-smoke-import.json');
-        exportedJson.members[0].displayName = 'ImportCheck';
+        exportedJson.members[0].displayName = '"><img src=x onerror="window.__gaolXss=1">ImportCheck';
         fs.writeFileSync(importPath, JSON.stringify(exportedJson, null, 2));
         page.once('dialog', dialog => dialog.accept());
         await page.setInputFiles('#json-import-input', importPath);
         await page.waitForTimeout(300);
         await page.click('text=メンバー');
-        assert(await page.locator('input[value="ImportCheck"]').count() === 1, 'JSON import did not update display names');
+        assert((await page.locator('#name-0').inputValue()).includes('ImportCheck'), 'JSON import did not update display names');
+        await page.click('text=編成');
+        assert(await page.locator('img').count() === 0, 'Display name was parsed as HTML');
+        assert(await page.evaluate(() => window.__gaolXss !== 1), 'Display name script payload executed');
 
         await page.click('text=診断');
         await page.waitForTimeout(300);
